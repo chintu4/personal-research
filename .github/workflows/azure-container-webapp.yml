@@ -85,6 +85,8 @@ jobs:
     environment:
       name: 'Development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    env:
+      GHCR_PAT: ${{ secrets.GHCR_PAT }}
 
     steps:
       - name: Lowercase the repo name and username
@@ -94,6 +96,40 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Verify Linux Web App and set required app settings
+        uses: azure/cli@v2
+        env:
+          GHCR_USERNAME: ${{ github.repository_owner }}
+        with:
+          inlineScript: |
+            set -e
+            # Discover resource group
+            RG=$(az webapp show -n "$AZURE_WEBAPP_NAME" --query resourceGroup -o tsv)
+            if [ -z "$RG" ]; then
+              echo "Could not find resource group for app $AZURE_WEBAPP_NAME" >&2
+              exit 1
+            fi
+            # Ensure app is Linux (containers require Linux App Service)
+            KIND=$(az webapp show -g "$RG" -n "$AZURE_WEBAPP_NAME" --query kind -o tsv)
+            echo "Detected Web App kind: $KIND in RG: $RG"
+            case "$KIND" in
+              *linux*) echo "Linux Web App detected." ;;
+              *) echo "This Web App is not Linux. Create a Linux Web App for container images and set env.AZURE_WEBAPP_NAME to it." >&2; exit 1 ;;
+            esac
+            # Set container port expected by Azure
+            az webapp config appsettings set -g "$RG" -n "$AZURE_WEBAPP_NAME" --settings WEBSITES_PORT=8000 1>/dev/null
+            echo "Set WEBSITES_PORT=8000"
+            # Optionally configure GHCR pull credentials if PAT is available
+            if [ -n "$GHCR_PAT" ]; then
+              az webapp config appsettings set -g "$RG" -n "$AZURE_WEBAPP_NAME" --settings \
+                DOCKER_REGISTRY_SERVER_URL=https://ghcr.io \
+                DOCKER_REGISTRY_SERVER_USERNAME="$GHCR_USERNAME" \
+                DOCKER_REGISTRY_SERVER_PASSWORD="$GHCR_PAT" 1>/dev/null
+              echo "Configured GHCR registry settings on the Web App"
+            else
+              echo "GHCR_PAT not provided in repo secrets; ensure the image is public or set registry settings manually."
+            fi
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
