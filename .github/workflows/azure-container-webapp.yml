@@ -88,6 +88,7 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     env:
       GHCR_PAT: ${{ secrets.GHCR_PAT }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
     steps:
       - name: Lowercase the repo name and username
@@ -130,6 +131,13 @@ jobs:
               echo "Configured GHCR registry settings on the Web App"
             else
               echo "GHCR_PAT not provided in repo secrets; ensure the image is public or set registry settings manually."
+            fi
+            # Optionally set Gemini API key if provided as a secret
+            if [ -n "$GEMINI_API_KEY" ]; then
+              az webapp config appsettings set -g "$RG" -n "$AZURE_WEBAPP_NAME" --settings GEMINI_API_KEY="$GEMINI_API_KEY" 1>/dev/null
+              echo "Set GEMINI_API_KEY on the Web App"
+            else
+              echo "GEMINI_API_KEY not provided; features depending on Gemini will be disabled."
             fi
 
       - name: Deploy to Azure Web App
