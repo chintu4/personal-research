@@ -41,6 +41,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GHCR_PAT: ${{ secrets.GHCR_PAT }}
 
     steps:
       - uses: actions/checkout@v4
@@ -50,15 +52,15 @@ jobs:
 
       # Prefer a PAT with write:packages when org policy blocks GITHUB_TOKEN from creating packages
       - name: Log in to GHCR (via PAT)
-        if: ${{ secrets.GHCR_PAT }}
+        if: ${{ env.GHCR_PAT != '' }}
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GHCR_PAT }}
+          password: ${{ env.GHCR_PAT }}
 
       - name: Log in to GHCR (via GITHUB_TOKEN)
-        if: ${{ !secrets.GHCR_PAT }}
+        if: ${{ env.GHCR_PAT == '' }}
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ghcr.io
