@@ -27,7 +27,7 @@
 name: Build and deploy a container to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: aiproject03691
+  AZURE_WEBAPP_NAME: aiproject03691-linux
 
 on:
   push:
