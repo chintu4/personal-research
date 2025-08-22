@@ -6,3 +6,5 @@ networkx
 pillow
 pytesseract
 google-generativeai
+jinja2
+python-multipart
