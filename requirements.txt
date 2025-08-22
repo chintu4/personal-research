@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pdfminer.six
+python-docx
+networkx
+pillow
+pytesseract
+google-generativeai

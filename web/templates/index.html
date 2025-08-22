@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Research Assistant</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Personal Research Assistant</h1>
+    <p>Summarize, build concept maps, and ask questions from your documents.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Summarize</h2>
+      <form id="summarize-form">
+        <input type="file" id="summarize-files" multiple />
+        <button type="submit">Summarize</button>
+      </form>
+      <pre id="summarize-result" class="result"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Knowledge Graph</h2>
+      <form id="kg-form">
+        <input type="file" id="kg-files" multiple />
+        <button type="submit">Build Graph</button>
+        <span id="kg-status" class="status"></span>
+      </form>
+      <div id="cy" aria-label="Concept graph visualization"></div>
+    </section>
+
+    <section class="card">
+      <h2>Question Answering</h2>
+      <form id="qa-form">
+        <input type="text" id="qa-question" placeholder="Enter your question" required />
+        <input type="file" id="qa-files" multiple />
+        <button type="submit">Ask</button>
+      </form>
+      <pre id="qa-result" class="result"></pre>
+    </section>
+  </main>
+
+  <footer>
+    <a href="/docs" target="_blank">API Docs</a>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
