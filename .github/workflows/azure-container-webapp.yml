@@ -105,8 +105,8 @@ jobs:
         with:
           inlineScript: |
             set -e
-            # Discover resource group
-            RG=$(az webapp show -n "$AZURE_WEBAPP_NAME" --query resourceGroup -o tsv)
+            # Discover resource group (avoid requiring --resource-group on show)
+            RG=$(az resource list --resource-type Microsoft.Web/sites --name "$AZURE_WEBAPP_NAME" --query "[0].resourceGroup" -o tsv)
             if [ -z "$RG" ]; then
               echo "Could not find resource group for app $AZURE_WEBAPP_NAME" >&2
               exit 1
